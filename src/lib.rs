@@ -1,8 +1,8 @@
 // Copyright 2023 Gerry Agbobada. Licensed under Apache-2.0.
 
-//! Monitor a process.
+//! Monitor a Tokio Runtime, collecting metrics for [Prometheus](prometheus).
 //!
-//! This module only supports **Linux** platform.
+//! This module needs the `tokio_unstable` RUSTFLAG flag to work properly.
 
 use prometheus::{
     core::Desc,
