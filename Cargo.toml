@@ -1,0 +1,20 @@
+[package]
+name = "prometheus-tokio"
+description = "A collection of tokio runtime metrics for prometheus consumption"
+version = "0.1.0"
+edition = "2021"
+homepage = "https://github.com/gagbo/rust-prometheus-tokio"
+repository = "https://github.com/gagbo/rust-prometheus-tokio"
+keywords = ["prometheus", "metrics"]
+license = "Apache-2.0"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+prometheus = { version = "0.13.3" }
+tokio = { version = "1.27" }
+tokio-metrics = { version = "0.2", features = ["rt"] }
+
+[dev-dependencies]
+tokio = { version = "1.27", features = ["rt"]}
