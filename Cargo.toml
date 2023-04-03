@@ -12,9 +12,11 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+const_format = "0.2.30"
 prometheus = { version = "0.13.3" }
 tokio = { version = "1.27" }
 tokio-metrics = { version = "0.2", features = ["rt"] }
+tracing = "0.1.37"
 
 [dev-dependencies]
 tokio = { version = "1.27", features = ["rt"]}
