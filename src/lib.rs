@@ -105,7 +105,8 @@ The counter is monotonically increasing. It is never decremented or reset to zer
 );
 const IO_DRIVER_READY_COUNT: (&str, &str) = (
     "rust_tokio_io_driver_ready_count",
-    r#"The number of ready events processed by the runtime’s I/O driver."#,
+    r#"The number of ready events processed by the runtime’s I/O driver.
+The metric needs the 'net' feature from tokio to be reported."#,
 );
 const MEAN_POLLS_PER_PARK: (&str, &str) = (
     "rust_tokio_mean_polls_per_park",
@@ -132,6 +133,7 @@ pub struct TokioCollector {
     injection_queue_depth: IntGauge,
     local_queue_depth: IntGaugeVec,
     budget_forced_yield_tasks: IntCounter,
+    #[cfg_attr(not(feature = "io_driver"), allow(dead_code))]
     io_driver_ready_events: IntCounter,
     mean_polls_per_park: Gauge,
 }
@@ -401,6 +403,7 @@ impl Collector for TokioCollector {
             mfs.extend(self.injection_queue_depth.collect())
         }
 
+        #[cfg(feature = "io_driver")]
         {
             let past = self.io_driver_ready_events.get();
             let new = self.metrics.io_driver_ready_count();
@@ -408,6 +411,8 @@ impl Collector for TokioCollector {
             self.io_driver_ready_events.inc_by(new.saturating_sub(past));
             mfs.extend(self.io_driver_ready_events.collect());
         }
+        #[cfg(not(feature = "io_driver"))]
+        {}
 
         {
             let delta_parks = new_parks_total.saturating_sub(old_parks_total);
@@ -441,11 +446,16 @@ mod tests {
         let rt = runtime::Builder::new_current_thread().build().unwrap();
         let tc = TokioCollector::new(rt.handle(), "");
         {
-            // Seven metrics per process collector.
             let descs = tc.desc();
-            assert_eq!(descs.len(), super::METRICS_NUMBER);
+            assert_eq!(descs.len(), METRICS_NUMBER);
+
             let mfs = tc.collect();
-            assert_eq!(mfs.len(), super::METRICS_NUMBER);
+            // Without the io_driver feature, the io_driver_ready_count related
+            // metric is not reported
+            #[cfg(not(feature = "io_driver"))]
+            assert_eq!(mfs.len(), METRICS_NUMBER - 1);
+            #[cfg(feature = "io_driver")]
+            assert_eq!(mfs.len(), METRICS_NUMBER);
         }
 
         let r = Registry::new();

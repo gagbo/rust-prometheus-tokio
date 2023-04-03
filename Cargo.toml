@@ -11,9 +11,12 @@ readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+io_driver = ["tokio/net"]
+
 [dependencies]
 prometheus = { version = "0.13.3" }
-tokio = { version = "1.27" }
+tokio = { version = "1.27", features = ["rt"] }
 tracing = "0.1.37"
 
 [dev-dependencies]
